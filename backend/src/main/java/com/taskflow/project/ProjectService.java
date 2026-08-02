@@ -93,7 +93,7 @@ public class ProjectService {
         project.getColumns().forEach(column -> column.getTasks().clear());
         project.getColumns().clear();
         project.getTasks().clear();
-        activityLogRepository.deleteByProject(project);
+        activityLogRepository.deleteByProjectId(projectId);
         projectRepository.delete(project);
     }
 
