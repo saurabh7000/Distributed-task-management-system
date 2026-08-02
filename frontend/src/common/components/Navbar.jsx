@@ -12,7 +12,11 @@ export default function Navbar() {
   const [showUser, setShowUser] = useState(false);
   const ref = useRef(null);
 
-  useEffect(() => { fetchNotifs(); }, []);
+  useEffect(() => {
+    fetchNotifs();
+    const interval = setInterval(fetchNotifs, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) { setShowNotifs(false); setShowUser(false); } };
@@ -20,18 +24,20 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  const isNotifRead = (n) => Boolean(n.read || n.isRead);
+
   const fetchNotifs = async () => {
     try {
       const data = await notificationService.getAll();
       setNotifs(data || []);
-      setUnread((data || []).filter(n => !n.read).length);
+      setUnread((data || []).filter(n => !isNotifRead(n)).length);
     } catch {}
   };
 
   const handleRead = async (id) => {
     try {
       await notificationService.markRead(id);
-      setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+      setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true, isRead: true } : n));
       setUnread(prev => Math.max(0, prev - 1));
     } catch {}
   };
@@ -77,18 +83,21 @@ export default function Navbar() {
                 <div className="max-h-72 overflow-y-auto">
                   {notifs.length === 0
                     ? <p className="text-sm text-gray-400 text-center py-8">No notifications</p>
-                    : notifs.slice(0,10).map(n => (
-                        <div key={n.id} onClick={() => !n.read && handleRead(n.id)}
-                          className={`px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${!n.read ? 'bg-blue-50/60' : ''}`}>
-                          <div className="flex gap-2">
-                            {!n.read && <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full flex-shrink-0" />}
-                            <div className={!n.read ? '' : 'ml-4'}>
-                              <p className="text-sm text-gray-700">{n.message}</p>
-                              <p className="text-xs text-gray-400 mt-0.5">{timeAgo(n.createdAt)}</p>
+                    : notifs.slice(0,10).map(n => {
+                        const read = isNotifRead(n);
+                        return (
+                          <div key={n.id} onClick={() => !read && handleRead(n.id)}
+                            className={`px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${!read ? 'bg-blue-50/60' : ''}`}>
+                            <div className="flex gap-2">
+                              {!read && <div className="w-2 h-2 mt-1.5 bg-blue-500 rounded-full flex-shrink-0" />}
+                              <div className={!read ? '' : 'ml-4'}>
+                                <p className="text-sm text-gray-700">{n.message}</p>
+                                <p className="text-xs text-gray-400 mt-0.5">{timeAgo(n.createdAt)}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                   }
                 </div>
               </div>
