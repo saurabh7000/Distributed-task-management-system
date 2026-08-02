@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getAccessToken, setAccessToken, clearAccessToken } from 'features/auth/services/authToken'
 
-const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
+const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:8080/api/v1';
 const api = axios.create({ baseURL: apiBase, headers: { 'Content-Type': 'application/json' }, timeout: 10000, withCredentials: true });
 api.interceptors.request.use((config) => {
   const token = getAccessToken();
