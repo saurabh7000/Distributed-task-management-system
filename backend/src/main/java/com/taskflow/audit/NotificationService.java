@@ -49,6 +49,13 @@ public class NotificationService {
         notificationRepository.save(n);
     }
 
+    @Transactional
+    public void markAllAsRead(Long userId) {
+        List<Notification> list = notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        list.forEach(n -> n.setRead(true));
+        notificationRepository.saveAll(list);
+    }
+
     @Transactional(readOnly = true)
     public long countUnread(Long userId) {
         return notificationRepository.countByUserIdAndReadFalse(userId);

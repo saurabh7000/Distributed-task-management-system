@@ -42,6 +42,14 @@ export default function Navbar() {
     } catch {}
   };
 
+  const handleMarkAllRead = async () => {
+    try {
+      await notificationService.markAllRead();
+      setNotifs(prev => prev.map(n => ({ ...n, read: true, isRead: true })));
+      setUnread(0);
+    } catch {}
+  };
+
   const timeAgo = (d) => {
     const s = Math.floor((Date.now() - new Date(d)) / 1000);
     if (s < 60) return 'just now';
@@ -78,7 +86,11 @@ export default function Navbar() {
               <div className="absolute right-0 mt-1 w-80 bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
                 <div className="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
                   <span className="font-semibold text-sm text-gray-900">Notifications</span>
-                  {unread > 0 && <span className="text-xs text-blue-600 font-medium">{unread} unread</span>}
+                  {unread > 0 && (
+                    <button onClick={handleMarkAllRead} className="text-xs text-blue-600 font-medium hover:underline">
+                      Mark all as read
+                    </button>
+                  )}
                 </div>
                 <div className="max-h-72 overflow-y-auto">
                   {notifs.length === 0

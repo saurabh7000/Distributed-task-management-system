@@ -34,6 +34,12 @@ public class NotificationController {
         return ResponseEntity.ok(ApiResponse.ok("Marked as read", null));
     }
 
+    @PutMapping("/read-all")
+    public ResponseEntity<ApiResponse<?>> markAllRead(@AuthenticationPrincipal UserDetails ud) {
+        notificationService.markAllAsRead(userResolverService.getUserId(ud));
+        return ResponseEntity.ok(ApiResponse.ok("All marked as read", null));
+    }
+
     @GetMapping("/unread-count")
     public ResponseEntity<ApiResponse<Long>> unreadCount(@AuthenticationPrincipal UserDetails ud) {
         return ResponseEntity.ok(ApiResponse.ok(notificationService.countUnread(userResolverService.getUserId(ud))));

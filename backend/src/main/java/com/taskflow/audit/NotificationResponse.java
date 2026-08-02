@@ -8,6 +8,7 @@ import com.taskflow.audit.*;
 import com.taskflow.common.*;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -15,10 +16,16 @@ import java.time.LocalDateTime;
 public class NotificationResponse {
     private Long id;
     private String message;
+    @JsonProperty("read")
     private boolean read;
     private Notification.Type type;
     private Long referenceId;
     private LocalDateTime createdAt;
+
+    @JsonProperty("isRead")
+    public boolean getIsRead() {
+        return read;
+    }
 
     public static NotificationResponse from(Notification n) {
         return NotificationResponse.builder()
