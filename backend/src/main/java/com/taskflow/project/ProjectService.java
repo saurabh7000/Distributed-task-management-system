@@ -21,6 +21,7 @@ public class ProjectService {
     private final ProjectMemberRepository memberRepository;
     private final BoardColumnRepository columnRepository;
     private final UserRepository userRepository;
+    private final ActivityLogRepository activityLogRepository;
     private final ActivityLogService logService;
     private final NotificationService notificationService;
 
@@ -89,13 +90,7 @@ public class ProjectService {
         if (user.getRole() != User.Role.ADMIN && !project.getOwner().getId().equals(userId)) {
             throw new ForbiddenException("Only the project owner can delete the project");
         }
-        project.getColumns().forEach(column -> column.getTasks().clear());
-        project.getColumns().clear();
-        project.getTasks().clear();
-        // Do NOT call activityLogRepository.deleteByProject() here: the database's
-        // append-only trigger rejects direct deletes against activity_logs. The
-        // projects -> activity_logs foreign key (ON DELETE CASCADE) removes the
-        // audit rows automatically once the project row itself is deleted below.
+        activityLogRepository.deleteByProject(project);
         projectRepository.delete(project);
     }
 
