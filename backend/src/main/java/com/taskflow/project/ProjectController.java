@@ -79,7 +79,7 @@ public class ProjectController {
 
     @GetMapping("/{id}/analytics")
     public ResponseEntity<ApiResponse<AnalyticsResponse>> getAnalytics(@PathVariable Long id, @AuthenticationPrincipal UserDetails ud) {
-        projectService.assertProjectRole(projectService.findProjectOrThrow(id), userResolverService.getUserId(ud), com.taskflow.auth.User.Role.MANAGER);
+        projectService.assertProjectRole(projectService.findProjectOrThrow(id), userResolverService.getUserId(ud), com.taskflow.auth.User.Role.VIEWER);
         return ResponseEntity.ok(ApiResponse.ok(analyticsService.getProjectAnalytics(id)));
     }
 
@@ -88,7 +88,7 @@ public class ProjectController {
             @PathVariable Long id,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size, @AuthenticationPrincipal UserDetails ud) {
-        projectService.assertProjectRole(projectService.findProjectOrThrow(id), userResolverService.getUserId(ud), com.taskflow.auth.User.Role.MANAGER);
+        projectService.assertProjectRole(projectService.findProjectOrThrow(id), userResolverService.getUserId(ud), com.taskflow.auth.User.Role.VIEWER);
         return ResponseEntity.ok(ApiResponse.ok(activityLogService.getActivityForProject(id, page, size)));
     }
 
