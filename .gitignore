@@ -1,0 +1,26 @@
+# Node / Frontend
+node_modules/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+npm-debug.log*
+
+# Java / Spring Boot Backend
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+.mvn/
+!mvnw
+!mvnw.cmd
+
+# IDE / OS Files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
