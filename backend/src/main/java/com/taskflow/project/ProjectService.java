@@ -90,6 +90,9 @@ public class ProjectService {
         if (user.getRole() != User.Role.ADMIN && !project.getOwner().getId().equals(userId)) {
             throw new ForbiddenException("Only the project owner can delete the project");
         }
+        project.getColumns().forEach(column -> column.getTasks().clear());
+        project.getColumns().clear();
+        project.getTasks().clear();
         activityLogRepository.deleteByProject(project);
         projectRepository.delete(project);
     }
