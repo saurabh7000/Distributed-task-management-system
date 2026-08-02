@@ -7,8 +7,8 @@ export function useWebSocket(projectId, onMessage) {
   const clientRef = useRef(null);
 
   useEffect(() => {
-    if (!projectId) return;
     const token = getAccessToken();
+    if (!token) return;
 
     const client = new Client({
       webSocketFactory: () =>
@@ -16,13 +16,19 @@ export function useWebSocket(projectId, onMessage) {
       connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       onConnect: () => {
-        // Subscribe to project board events
-        client.subscribe(`/topic/project/${projectId}`, (msg) => {
-          try { onMessage(JSON.parse(msg.body)); } catch (e) {}
-        });
-        // Subscribe to personal notifications
+        // Subscribe to project board events if viewing a project
+        if (projectId) {
+          client.subscribe(`/topic/project/${projectId}`, (msg) => {
+            try { onMessage && onMessage(JSON.parse(msg.body)); } catch (e) {}
+          });
+        }
+        // Subscribe to personal notifications globally
         client.subscribe('/user/queue/notifications', (msg) => {
-          try { onMessage({ type: 'NOTIFICATION', payload: JSON.parse(msg.body) }); } catch (e) {}
+          try {
+            const notif = JSON.parse(msg.body);
+            window.dispatchEvent(new CustomEvent('taskflow_realtime_notification', { detail: notif }));
+            if (onMessage) onMessage({ type: 'NOTIFICATION', payload: notif });
+          } catch (e) {}
         });
       },
       onStompError: (frame) => console.error('STOMP error:', frame),

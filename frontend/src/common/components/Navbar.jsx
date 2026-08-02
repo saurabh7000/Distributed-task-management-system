@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from 'features/auth/context/AuthContext'
 import { notificationService } from 'features/audit/services/notificationService'
 
+import { useWebSocket } from 'features/realtime/hooks/useWebSocket'
+
 export default function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -12,10 +14,17 @@ export default function Navbar() {
   const [showUser, setShowUser] = useState(false);
   const ref = useRef(null);
 
+  useWebSocket(null, null);
+
   useEffect(() => {
     fetchNotifs();
     const interval = setInterval(fetchNotifs, 10000);
-    return () => clearInterval(interval);
+    const handleRealtime = () => fetchNotifs();
+    window.addEventListener('taskflow_realtime_notification', handleRealtime);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('taskflow_realtime_notification', handleRealtime);
+    };
   }, []);
 
   useEffect(() => {
