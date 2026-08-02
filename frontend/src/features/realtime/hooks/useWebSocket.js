@@ -12,7 +12,7 @@ export function useWebSocket(projectId, onMessage) {
 
     const client = new Client({
       webSocketFactory: () =>
-        new SockJS(`${process.env.REACT_APP_WS_URL || 'http://localhost:8080/ws'}?token=${encodeURIComponent(token || '')}`),
+        new SockJS(`${import.meta.env.VITE_WS_URL || 'http://localhost:8080/ws'}?token=${encodeURIComponent(token || '')}`),
       connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       onConnect: () => {
