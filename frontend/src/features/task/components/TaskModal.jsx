@@ -4,6 +4,14 @@ import { taskService } from 'features/task/services/taskService'
 const PRIORITIES = ['LOW','MEDIUM','HIGH','CRITICAL'];
 const PRI_STYLE  = { CRITICAL: 'bg-rose-100 text-rose-700', HIGH: 'bg-red-100 text-red-700', MEDIUM: 'bg-amber-100 text-amber-700', LOW: 'bg-green-100 text-green-700' };
 
+const parseDate = (d) => {
+  if (!d) return null;
+  if (typeof d === 'string' && !d.endsWith('Z') && !d.includes('+')) {
+    return new Date(d + 'Z');
+  }
+  return new Date(d);
+};
+
 export default function TaskModal({ task, projectId, members, columns, defaultColumnId, onSave, onDelete, onClose }) {
   const isNew = !task;
   const [form, setForm] = useState({
@@ -124,7 +132,7 @@ export default function TaskModal({ task, projectId, members, columns, defaultCo
           {!isNew && task && (
             <div className="pt-2 border-t border-gray-100 text-xs text-gray-400 space-y-0.5">
               <p>Created by <span className="text-gray-500 font-medium">{task.createdBy?.username}</span></p>
-              <p>Created {task.createdAt ? new Date(task.createdAt).toLocaleString() : ''}</p>
+              <p>Created {task.createdAt ? parseDate(task.createdAt).toLocaleString() : ''}</p>
             </div>
           )}
         </div>
