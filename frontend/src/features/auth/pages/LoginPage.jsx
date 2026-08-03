@@ -65,10 +65,6 @@ export default function LoginPage() {
             <Link to="/signup" className="text-blue-600 font-medium hover:text-blue-700">Create one free</Link>
           </p>
         </div>
-
-        <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 text-center">
-          <strong>Demo credentials:</strong> admin@taskflow.com/ admin123
-        </div>
       </div>
     </div>
   );
