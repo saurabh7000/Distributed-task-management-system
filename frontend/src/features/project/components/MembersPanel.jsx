@@ -11,6 +11,8 @@ export default function MembersPanel({ project, onClose, onUpdate }) {
   const [success, setSuccess] = useState('');
 
   const isOwner = project?.owner?.id === user?.id;
+  const currentMember = project?.members?.find(m => (m.userId || m.user?.id) === user?.id);
+  const isManager = isOwner || currentMember?.role === 'MANAGER' || user?.role === 'ADMIN';
 
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -51,7 +53,7 @@ export default function MembersPanel({ project, onClose, onUpdate }) {
           {error && <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">{error}</div>}
           {success && <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">{success}</div>}
 
-          {isOwner && (
+          {isManager && (
             <div>
               <h3 className="text-sm font-semibold text-gray-700 mb-2">Add member by email</h3>
               <form onSubmit={handleAdd} className="flex gap-2">
@@ -87,29 +89,26 @@ export default function MembersPanel({ project, onClose, onUpdate }) {
 
               {/* Other members */}
               {(project?.members || [])
-                .filter(m => m.userId !== project?.owner?.id)
+                .filter(m => (m.userId || m.user?.id) !== project?.owner?.id)
                 .map(member => (
-                  <div key={member.userId} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors">
+                  <div key={member.userId || member.user?.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl transition-colors">
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 bg-violet-100 text-violet-700 rounded-full flex items-center justify-center text-sm font-bold">
-                        {member.username?.charAt(0).toUpperCase()}
+                        {(member.username || member.user?.username)?.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{member.username}</p>
-                        <p className="text-xs text-gray-400">{member.email}</p>
+                        <p className="text-sm font-medium text-gray-900">{member.username || member.user?.username}</p>
+                        <p className="text-xs text-gray-400">{member.email || member.user?.email}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">Member</span>
-                      {isOwner && (
-                        <button onClick={() => handleRemove(member.userId, member.username)}
-                          disabled={removing === member.userId}
-                          className="text-gray-300 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-red-50 disabled:opacity-40"
+                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{member.role || 'Member'}</span>
+                      {isManager && (
+                        <button onClick={() => handleRemove(member.userId || member.user?.id, member.username || member.user?.username)}
+                          disabled={removing === (member.userId || member.user?.id)}
+                          className="px-2 py-1 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-40"
                           title="Remove member">
-                          {removing === member.userId
-                            ? <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                            : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                          }
+                          {removing === (member.userId || member.user?.id) ? '...' : 'Remove'}
                         </button>
                       )}
                     </div>
@@ -121,7 +120,7 @@ export default function MembersPanel({ project, onClose, onUpdate }) {
 
         <div className="px-5 py-4 border-t border-gray-100">
           <p className="text-xs text-gray-400 text-center">
-            {isOwner ? 'You are the project owner' : 'Contact owner to manage members'}
+            {isManager ? 'You have manager permissions' : 'Contact owner/manager to manage members'}
           </p>
         </div>
       </div>
